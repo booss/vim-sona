@@ -227,4 +227,4 @@ augroup END
 " vim: fdm=marker
 ```
 
-The cflags file contains only one line of all the flags required to compile a file of your project.
+The `cflags` file contains only one line with all the flags required to compile a file in your project.
