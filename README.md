@@ -173,7 +173,8 @@ let g:sona_sources_gtags_protect_pattern = 0
 <C-a>			list all available sources
 ```
 
-### Simple workflow
+Simple workflow
+=====
 
 I can quickly open a file using `,gf` or open a recent file with `,o`.
 If the file I'm looking for is not a C file, I use `,ga`.
@@ -181,21 +182,21 @@ If I want to lookup the definition of the tag under the cursor, I use `,]`.
 If I want to look for references of the tag under the cursor, I use `,[`.
 In order to recall the previous search I issue `,w`.
 If I want to leave the search window open I use `<Tab>` to go back to the buffer and `<S-Tab>` to jump back to the search window.
-With `,t` I can pop the last tag jump from sona's stack (you can view the stack with `,st`.
+With `,t` I can pop the last tag jump from sona's stack (you can view the stack with `,st`).
 The following section provides the full list of mappings I use.
 
-My current configuration
+My configuration
 =====
 
 ```vim
 " sona
 
 " options
-"let g:sona_ignore_case = 0
+let g:sona_ignore_case = 0
 let g:sona_save_search = 1
-"let g:sona_fuzzy_pattern = 0
+let g:sona_fuzzy_pattern = 0
 let g:sona_auto_action = 1
-"let g:sona_hide_on_action = 1
+let g:sona_hide_on_action = 1
 
 let g:sona_actions_file_open_mode = 't'
 
