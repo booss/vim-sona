@@ -12,11 +12,14 @@ Introduction
 =====
 
 This plugin will help you navigate into your C projects.
-With the help of CTAGS `http://ctags.sourceforge.net/` and GLOBAL `https://www.gnu.org/software/global/`
-sona allows you to jump, search, list symbols, references, prototypes, structures, files...
-sona uses sources to collect data after looking for a pattern.
-Those data are then filtered and displayed in the sona window where a specific action can then be triggered (usually open file).
-Each sources, filters, actions exports globals and mappings and status flags which can be customized.
+You'll be able to jump to tag definitions, declaration, references, files...
+Sona comes bundled with sources, filters, actions which are entirely customizable.
+
+Dependencies
+=====
+* global (https://www.gnu.org/software/global/)
+* ctags (http://ctags.sourceforge.net/)
+* the_silver_searcher (https://github.com/ggreer/the_silver_searcher.git)
 
 Features
 =====
@@ -45,7 +48,143 @@ Features
 * file open
 * source select
 
-Here is my current configuration
+Configuration
+=====
+
+### Options
+
+```vim
+let g:sona_ignore_case = 0
+let g:sona_save_search = 0
+let g:sona_fuzzy_pattern = 0
+let g:sona_auto_action = 0
+let g:sona_hide_on_action = 1
+let g:sona_window_height = 15
+let g:sona_max_results =  100
+let g:sona_max_display_results = 50
+let g:sona_extra_mapkeys =  []
+let g:sona_window_position = 'botright'
+let g:sona_mapping = {}
+let g:sona_cursor_color = 'ctermbg=250 ctermfg=000 guibg=#efefef guifg=#000000'
+let g:sona_match_color = 'ctermbg=NONE ctermfg=111 guibg=NONE guifg=#68a9eb'
+let g:sona_text_color = 'ctermbg=NONE ctermfg=118 guibg=NONE guifg=#ffdb72'
+let g:sona_mark_color = 'ctermbg=NONE ctermfg=112 guibg=NONE guifg=#99cf50'
+let g:sona_line_color = 'ctermbg=NONE ctermfg=140 guibg=NONE guifg=#bcdbff'
+let g:sona_column_color = 'ctermbg=NONE ctermfg=118 guibg=NONE guifg=#ffdb72'
+let g:sona_kind_color = 'ctermbg=NONE ctermfg=140 guibg=NONE guifg=#bcdbff'
+let g:sona_file_color = 'ctermbg=NONE ctermfg=207 guibg=NONE guifg=#ffb3ff'
+let g:sona_hide_dark = 'ctermfg=233 guifg=#000'
+let g:sona_hide_light = 'ctermfg=254 guifg=#fff'
+```
+
+### sona window mappings
+
+```vim
+<Esc> or <C-c>		close sona window
+<BS>			remove the character on the left of the cursor
+<Del>			remove the character on the right of the cursor
+<C-w>			delete the word on the left
+<C-u>			erase the current input
+<Left>			move the cursor left
+<Right>			move the cursor right
+<Home>			move the cursor at the beginning of input
+<End>			move the cursor at the end of input
+<C-j>			jump to the first result in the list
+<C-k>			jump to the last result in the list
+<Tab>			leave the window open and go back to the buffer
+<C-i>			toggle the 'ignore case' flag
+<C-f>			toggle the 'fuzzy match' flag
+<C-y>			toggle the 'save search' flag (keep the results after closing the window)
+<C-h>			toggle the 'hide' flag (close the window after using an action)
+<C-\>			toggle the 'auto' flag (execute default action with single result)
+<C-l>			refresh the results
+<C-b>			pick up the previous available group (among gtags, ctags, ag, sona)
+<C-d>			pick up the next available group
+<C-p>			select the previous source within a group
+<C-n>			select the next source within a group
+<C-x>			toggle selection (useful for opening multiple files at once)
+<CR> or <2-LeftMouse>	execute default action on the current selection
+```
+
+### file action mappings
+
+```vim
+<C-e>		open the file in the current buffer
+<C-t>		open the file in a new tab
+<C-h>		open the file in a new horizontal split buffer
+<C-v>		open the file in a new vertical split buffer
+<C-o>		cycle through all the open modes
+```
+
+### file action globals
+
+```vim
+" default open mode (t = tab, e = buffer, h = hsplit, v = vsplit)
+let g:sona_actions_file_open_mode = 't'
+" execute action in a new window
+let g:sona_actions_file_open_new_window = 0
+```
+
+### file filter globals
+
+```vim
+" pattern used to exclude files from the results
+let g:sona_filters_file_exclude = ''
+```
+
+### ag source globals
+
+```vim
+" path to the_silver_searcher executable
+let g:sona_sources_ag_cmd = 'ag'
+```
+
+### ctags source globals
+
+```vim
+" path to exhuberant ctags executable
+let g:sona_sources_ctags_ctags_cmd = 'ctags'
+" default ctags options
+let g:sona_sources_ctags_ctags_opt = '-Rn --languages=c,c++ --c-kinds=+p+x --c++-kinds=+p+x --fields=+iaS --extra=+q'
+```
+
+### gtags source globals
+
+```vim
+" update the tags when saving files
+let g:sona_sources_gtags_auto_update = 1
+" path to gtags executable
+let g:sona_sources_gtags_gtags_cmd = 'gtags'
+" path to global executable
+let g:sona_sources_gtags_global_command = 'global'
+" protect the pattern (magic chars)
+let g:sona_sources_gtags_protect_pattern = 0
+```
+
+### gtags source mappings
+
+```vim
+<C-g>			toggle the 'protect pattern' flag
+```
+
+### sona sources mappings
+
+```vim
+<C-a>			list all available sources
+```
+
+### Simple workflow
+
+I can quickly open a file using `,gf` or open a recent file with `,o`.
+If the file I'm looking for is not a C file, I use `,ga`.
+If I want to lookup the definition of the tag under the cursor, I use `,]`.
+If I want to look for references of the tag under the cursor, I use `,[`.
+In order to recall the previous search I issue `,w`.
+If I want to leave the search window open I use `<Tab>` to go back to the buffer and `<S-Tab>` to jump back to the search window.
+With `,t` I can pop the last tag jump from sona's stack (you can view the stack with `,st`.
+The following section provides the full list of mappings I use.
+
+My current configuration
 =====
 
 ```vim
@@ -212,12 +351,16 @@ function! sona#build_inc_path() " {{{
 		endfor
 	endif
 	execute printf('set path=.,%s,/usr/include', join(l:include_path, ','))
-	call s:sb_notify_ok('Building include paths and cflags done.')
+	call sona#report('Building include paths and cflags done.', 'i')
 endfunction " }}}
 
+" use the cflags '-I' directives to build the include paths (useful with `gf`)
 map <silent>	,!	:call sona#build_inc_path()<CR>
+" toggle syntax checking on buffer write
 map <silent>	,?	:call sona#toggle_syntax_check()<CR>
+" show quickfix window if the file errors.err contains something
 map <silent>	,.	:call sona#quickfix()<CR>
+" edit the cflags file
 map <silent>	,%	:call sona#set_cflags()<CR>
 
 augroup sona_syntax_check
