@@ -284,6 +284,10 @@ function! sona#syntax_check() " {{{
 		return
 	endif
 
+	if s:cflags == ''
+		call sona#load_cflags()
+	endif
+
 	let l:makeprg = &makeprg
 	let &makeprg = printf('gcc -fsyntax-only %s', s:cflags)
 	silent! lmake! %
@@ -303,9 +307,16 @@ function! sona#syntax_check() " {{{
 	let &makeprg = l:makeprg
 endfunction " }}}
 
+function! sona#load_cflags() " {{{
+	if !filereadable('cflags')
+		return sona#report('cflags file not found.', 'e')
+	endif
+	let s:cflags = join(readfile('cflags', '', 1))
+endfunction " }}}
+
 function! sona#set_cflags() " {{{
 	let l:cflags = input('cflags=', s:cflags)
-	if s:cflags != l:cflags
+	if l:cflags != '' && s:cflags != l:cflags
 		let s:cflags = l:cflags
 		call writefile([s:cflags], 'cflags')
 	endif
@@ -342,17 +353,17 @@ function! sona#quickfix() " {{{
 endfunction " }}}
 
 function! sona#build_inc_path() " {{{
-	let l:include_path = []
-	if filereadable('cflags')
-		let l:cflags = join(readfile('cflags', '', 1))
-		for opt in split(substitute(l:cflags, '-I\s*', '-I', 'g'), ' ')
+	call sona#load_cflags()
+	if s:cflags == ''
+		let l:include_path = []
+		for opt in split(substitute(s:cflags, '-I\s*', '-I', 'g'), ' ')
 			if opt =~ "^-I"
 				call add(l:include_path, substitute(opt, '-I', '', ''))
 			endif
 		endfor
+		execute printf('set path=.,%s,/usr/include', join(l:include_path, ','))
+		call sona#report('Building include paths and cflags done.', 'i')
 	endif
-	execute printf('set path=.,%s,/usr/include', join(l:include_path, ','))
-	call sona#report('Building include paths and cflags done.', 'i')
 endfunction " }}}
 
 " use the cflags '-I' directives to build the include paths (useful with `gf`)
