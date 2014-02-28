@@ -354,7 +354,7 @@ endfunction " }}}
 
 function! sona#build_inc_path() " {{{
 	call sona#load_cflags()
-	if s:cflags == ''
+	if s:cflags != ''
 		let l:include_path = []
 		for opt in split(substitute(s:cflags, '-I\s*', '-I', 'g'), ' ')
 			if opt =~ "^-I"
