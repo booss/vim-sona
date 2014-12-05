@@ -91,6 +91,7 @@ let s:flags = {}
 let s:stack = []
 let s:group = 'sona'
 let s:source = 'source'
+let s:stack_idx = 0
 " }}}
 " window parameters {{{
 let s:window_global_options = {
@@ -235,6 +236,23 @@ function! s:statusline_render() " {{{
 		\ . ']'
 endfunction " }}}
 
+function! s:stack_open(rm, idx) " {{{
+	if empty(s:stack)
+		let s:stack_idx = 0
+		return sona#report('stack is empty', 'w')
+	endif
+	let l:context = a:rm ? remove(s:stack, a:idx) : s:stack[a:idx]
+	let l:bufnr = l:context['bufnr']
+	execute (buflisted(l:bufnr) && bufwinnr(l:bufnr) != -1 ?
+		\ 'buffer' : 'sbuffer') l:bufnr
+	let l:cnum = get(l:context, 'cnum', -1)
+	if l:cnum < 0
+		let l:line = getline(l:context['lnum'])
+		let l:cnum = stridx(l:line, get(l:context, 'search', '')) + 1
+	endif
+	call cursor(l:context['lnum'], l:cnum <= 0 ? 1 : l:cnum)
+	normal zv
+endfunction " }}}
 function! sona#get_stack() " {{{
 	return s:stack
 endfunction " }}}
@@ -248,20 +266,30 @@ function! sona#stack_push() " {{{
 	endif
 endfunction " }}}
 function! sona#stack_pop() " {{{
-	if empty(s:stack)
-		return sona#report('stack is empty', 'w')
+	call s:stack_open(1, -1)
+endfunction " }}}
+function! s:stack_dir(dir) " {{{
+	let l:l = len(s:stack)
+	let l:idx = s:stack_idx + a:dir
+	return l:idx >= 0 && l:idx < l:l
+endfunction " }}}
+function! sona#stack_drop(idx) " {{{
+	let l:l = len(s:stack)
+	if a:idx < l:l && a:idx >= -l:l
+		remove(s:stack, a:idx)
 	endif
-	let l:context = remove(s:stack, -1)
-	let l:bufnr = l:context['bufnr']
-	execute (buflisted(l:bufnr) && bufwinnr(l:bufnr) != -1 ?
-		\ 'edit' : 'sbuffer') l:bufnr
-	let l:cnum = get(l:context, 'cnum', -1)
-	if l:cnum < 0
-		let l:line = getline(l:context['lnum'])
-		let l:cnum = stridx(l:line, get(l:context, 'search', '')) + 1
+endfunction " }}}
+function! sona#stack_prev() " {{{
+	if s:stack_dir(-1)
+		let s:stack_idx -= 1
+		call s:stack_open(0, s:stack_idx)
 	endif
-	call cursor(l:context['lnum'], l:cnum <= 0 ? 1 : l:cnum)
-	normal zv
+endfunction " }}}
+function! sona#stack_next() " {{{
+	if s:stack_dir(+1)
+		let s:stack_idx += 1
+		call s:stack_open(0, s:stack_idx)
+	endif
 endfunction " }}}
 
 function! s:cursor_left() " {{{
@@ -878,7 +906,7 @@ function! sona#search(group, source, pattern) " {{{
 
 	if g:sona_auto_action == 1
 			\ && l:sona.nresults == 1
-			\ && get(l:sona.results[0], 'match', '')
+			\ && get(l:sona.results[0], 'match', a:pattern)
 			\ == a:pattern
 		let l:sona.marks = [1]
 		call l:sona.action()
