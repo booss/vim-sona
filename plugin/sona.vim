@@ -905,9 +905,9 @@ function! sona#search(group, source, pattern) " {{{
 	endif
 
 	if g:sona_auto_action == 1
-			\ && l:sona.nresults == 1
-			\ && get(l:sona.results[0], 'match', a:pattern)
-			\ == a:pattern
+			\ && (l:sona.nresults == 1
+			\ || get(l:sona.results[0], 'match', '')
+			\ == a:pattern)
 		let l:sona.marks = [1]
 		call l:sona.action()
 	else
