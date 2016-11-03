@@ -137,7 +137,7 @@ function! sona#sources#ctags#clean() " {{{
 endfunction " }}}
 function! sona#sources#ctags#update() " {{{
 	if sona#sources#ctags#check()
-		call system(g:sona_sources_ctags_ctags_cmd . ' '
+		call system(g:sona_sources_ctags_ctags_cmd . ' -i '
 			\ . g:sona_sources_ctags_ctags_opt)
 		call sona#report('ctags file updated', 'i')
 	else
